@@ -16,5 +16,14 @@ void Set::print() {
 }
 
 void Set::union_set(Set& unirand) {
-
+	int cri = unirand.getsize();
+	Node* itr = unirand.head;
+	for (int i = 0; i < cri; i++) {
+		itr = itr->next;
+		add(itr->n);
+	}
+	unirand.head = NULL;
+	unirand.size = 0;
 }
+
+int Set::getsize() { return size; }

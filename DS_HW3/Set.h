@@ -10,9 +10,9 @@ public:
 
 	void add(int idx);
 	void print();
+	int getsize();
 	void union_set(Set& unirand);
 
-private:
 	Node* head;
 	Node* tail;
 	int size = 0;

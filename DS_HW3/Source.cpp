@@ -62,6 +62,9 @@ int main(int argc, char **argv)
 			maze_builder(image, maze, mazeidx);
 		}	
 	}
+
+	delete maze;
+	delete set;
 	return 0;
 }
 
