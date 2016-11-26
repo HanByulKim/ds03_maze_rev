@@ -47,6 +47,7 @@ int main(int argc, char **argv)
 			set[j + i*maze_size].add(j + i*maze_size);
 		}
 	}
+	set[0].union_set(set[1]);
 	for (int i = 0; i < maze_size*maze_size; i++)
 		set[i].print();
 	
@@ -60,11 +61,14 @@ int main(int argc, char **argv)
 		else if (c == 32) {
 			cout << "SPACE" << endl;
 			maze_builder(image, maze, mazeidx);
-		}	
+		}
 	}
 
 	delete maze;
 	delete set;
+	for (int i = 0; i < maze_size; i++)
+		delete mazeidx[i];
+	delete mazeidx;
 	return 0;
 }
 

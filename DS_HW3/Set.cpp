@@ -11,8 +11,9 @@ void Set::print() {
 	Node* itr = head;
 	for (int i = 0; i < size; i++) {
 		itr = itr->next;
-		std::cout << itr->n << " " << std::endl;
+		std::cout << itr->n << " ";
 	}
+	std::cout << std::endl;
 }
 
 void Set::union_set(Set& unirand) {
@@ -22,8 +23,23 @@ void Set::union_set(Set& unirand) {
 		itr = itr->next;
 		add(itr->n);
 	}
-	unirand.head = NULL;
-	unirand.size = 0;
+	unirand.init();
 }
 
 int Set::getsize() { return size; }
+
+void Set::init() {
+	int d = size;
+	for (int i = 0; i < d; i++) {
+		delete tail;
+		size--;
+		tail = head;
+		for (int j = 0; j < size; j++) {
+			tail = tail->next;
+		}
+	}
+
+	head = NULL;
+	tail = NULL;
+	size = 0;
+}

@@ -8,6 +8,7 @@ public:
 		tail = head;
 	};
 
+	void init();
 	void add(int idx);
 	void print();
 	int getsize();
