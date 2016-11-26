@@ -10,7 +10,7 @@ using namespace cv;
 int maze_size;
 
 int random_n();
-void maze_builder(Mat& image, Node* maze, int** mazeidx);
+void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int pixel_ratio);
 
 int main(int argc, char **argv)
 {
@@ -31,7 +31,6 @@ int main(int argc, char **argv)
 			line(image, p3, p4, Scalar(0, 0, 0));
 		}		
 	}
-	
 	imshow("maze", image);
 
 	Node* maze = new Node[maze_size*maze_size];
@@ -60,7 +59,7 @@ int main(int argc, char **argv)
 		}
 		else if (c == 32) {
 			cout << "SPACE" << endl;
-			maze_builder(image, maze, mazeidx);
+			maze_builder(image, set, maze, mazeidx, pixel_ratio);
 		}
 	}
 
@@ -74,7 +73,16 @@ int main(int argc, char **argv)
 
 int random_n() { return rand() % (maze_size*maze_size); }
 
-void maze_builder(Mat& image, Node* maze, int** mazeidx) {
+void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int pixel_ratio) {
+	int target;
+
+	/*while (set[0].size != maze_size*maze_size) {
+
+	}*/
+	line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));
+
+	imshow("maze", image);
+
 
 }
 
