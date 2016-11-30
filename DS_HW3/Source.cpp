@@ -1,3 +1,15 @@
+/**
+*********************************************
+2016 Autumn DataStructure HW03
+SNU Dept. of Electrical & Computer Engineering
+2014-13261
+Han-Byul Kim
+*********************************************
+Rev. log.
+look for https://github.com/HanByulKim/ds03_maze_rev
+*********************************************
+**/
+
 #include <opencv2\opencv.hpp>
 #include "Set.h"
 #include "Stack.h"
@@ -78,25 +90,25 @@ int main(int argc, char **argv)
 			cout << "SPACE" << endl;
 			if (cnt == 0) {
 				std::cout << "Wait Please.." << std::endl;
-				std::cout << "기다려주세요ㅜㅜ 70*70부터 시간이 생각보다 오래걸립니다." << std::endl;
+				std::cout << "응답없음이 떠도 기다려주세요ㅜㅜ 70*70부터 시간이 생각보다 오래걸립니다." << std::endl;
 				maze_builder(image, set, mazeidx, mazemap, pixel_ratio);
 				std::cout << "size " << maze_size << " maze" << std::endl;
 				cnt++;
 			}
 			else if (cnt == 1) {
 				DFS(image, set, mazeidx, mazemap, pixel_ratio);
-				cnt++;
+				cnt=INFINITY;
 			}
 		}
 	}
 	
-	delete set;
+	delete[] set;
 	for (int i = 0; i < maze_size; i++)
 		delete mazeidx[i];
-	delete mazeidx;
+	delete[] mazeidx;
 	for (int i = 0; i < 2*maze_size+1; i++)
 		delete mazemap[i];
-	delete mazemap;
+	delete[] mazemap;
 	return 0;
 }
 
@@ -166,9 +178,9 @@ void maze_builder(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 		for (int j = 0; j < maze_size-1; j++) {
 			if (i == 0 || j == 0) {
 				if (mazemap[(2 * (i % maze_size) + 1)][(2 * (j % maze_size) + 2)] == 0) // vertical line
-					line(image, cv::Point(pixel_ratio*(j + 1), pixel_ratio*i), cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + pixel_ratio-1), Scalar(255, 255, 255));
+					line(image, cv::Point(pixel_ratio*(j + 1), pixel_ratio*i+1), cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + pixel_ratio-1), Scalar(255, 255, 255));
 				if (mazemap[(2 * (j % maze_size) + 2)][(2 * (i % maze_size) + 1)] == 0) // horizontal line
-					line(image, cv::Point(pixel_ratio*i, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio-1, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
+					line(image, cv::Point(pixel_ratio*i+1, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio-1, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
 			}
 			else {
 				if (mazemap[(2 * (i % maze_size) + 1)][(2 * (j % maze_size) + 2)] == 0) // vertical line
@@ -176,9 +188,16 @@ void maze_builder(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 				if (mazemap[(2 * (j % maze_size) + 2)][(2 * (i % maze_size) + 1)] == 0) // horizontal line
 					line(image, cv::Point(pixel_ratio*i+1, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio-1, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
 			}
+
+
+			if (i == 0) {
+				if (mazemap[(2 * (i % maze_size) + 1)][(2 * (j % maze_size) + 2)] == 0) // vertical line
+					line(image, cv::Point(pixel_ratio*(j + 1), pixel_ratio*i), cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + pixel_ratio - 1), Scalar(255, 255, 255));
+				if (mazemap[(2 * (j % maze_size) + 2)][(2 * (i % maze_size) + 1)] == 0) // horizontal line
+					line(image, cv::Point(pixel_ratio*i, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio - 1, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
+			}
 		}
 	}
-	
 
 	imshow("maze", image);
 }
@@ -188,41 +207,46 @@ void DFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 
 	route->push(1, 1);
 	DFS(mazemap, route, 1, 1);
-
-	for (int i = 0; i < 2 * maze_size + 1; i++) {
-		for (int j = 0; j < 2 * maze_size + 1; j++) {
-			std::cout << mazemap[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
-
-	for (int i = 0; i < route->sizeis(); i++) {
-
+	
+	int x1, y1;
+	int x2, y2;
+	int size = route->sizeis();
+	for (int i = 0; i < size-1; i++) {
+		x1 = route->topx();
+		y1 = route->topy();
+		route->pop();
+		x2 = route->topx();
+		y2 = route->topy();
+		line(image, cv::Point(y1*pixel_ratio / 2, x1*pixel_ratio / 2), cv::Point(y2*pixel_ratio / 2, x2*pixel_ratio / 2), Scalar(0, 0, 255));
+		imshow("maze", image);
 	}
 
 	delete route;
 }
 
 bool DFS(int** mazemap, Stack* route, int x, int y) {
-	if (x == 2 * maze_size - 1 && y == 2 * maze_size - 1) {
-		mazemap[x][y] = 1;
-		return true;
-	}
-
 	int vector_x[4] = { 0,1,0,-1 };
 	int vector_y[4] = { 1,0,-1,0 };
+	bool pan = false;
+
+	if (x == 2 * maze_size - 1 && y == 2 * maze_size - 1) {
+		mazemap[x][y] = 1;
+		pan = true;
+	}
 
 	mazemap[x][y] = 1;
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 4 && pan==false; i++) {
 		if (mazemap[x + vector_x[i]][y + vector_y[i]] == 0) {
 			route->push(x + vector_x[i], y + vector_y[i]);
-			if (DFS(mazemap, route, x + vector_x[i], y + vector_y[i]))
-				return true;
-			else
-				route->pop();
+			pan = DFS(mazemap, route, x + vector_x[i], y + vector_y[i]);
+			//if (pan)
+			//	return true;
 		}
 	}
-	mazemap[x][y] = 0;
-	return false;
+	if (pan == false) {
+		mazemap[x][y] = 0;
+		route->pop();
+	}
+	return pan;
 }
 

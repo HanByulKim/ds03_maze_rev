@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="Set.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h" />

@@ -45,10 +45,6 @@ void Set::init(int num) {
 	size = 0;
 }
 
-bool Set::search(int unirand) {
-
-}
-
 void Set::setunioned(int a) {
 	unioned = a;
 }

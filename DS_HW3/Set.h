@@ -7,6 +7,9 @@ public:
 		head = new Node();
 		tail = head;
 	};
+	~Set() {
+		init(0);
+	}
 
 	void init(int num);
 	void setunioned(int a);
@@ -15,7 +18,6 @@ public:
 	int getsize();
 	int unionedchk();
 	void union_set(Set& unirand);
-	bool search(int unirand);
 
 	Node* head;
 	Node* tail;
