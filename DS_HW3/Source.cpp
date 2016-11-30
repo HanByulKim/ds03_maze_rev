@@ -10,7 +10,7 @@ using namespace cv;
 int maze_size;
 
 int random_n();
-void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int pixel_ratio);
+void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio);
 
 int main(int argc, char **argv)
 {
@@ -47,6 +47,7 @@ int main(int argc, char **argv)
 		for (int j = 0; j < maze_size; j++) {
 			mazeidx[i][j] = j + i*maze_size;
 			set[j + i*maze_size].add(j + i*maze_size);
+			set[j + i*maze_size].setunioned(j + i*maze_size);
 		}
 	}
 	for (int i = 0; i < 2 * maze_size + 1; i++) {
@@ -54,12 +55,14 @@ int main(int argc, char **argv)
 			if (i % 2 == 1 && j % 2 == 1)
 				mazemap[i][j] = 0;
 			else
-				mazemap[i][j] = 1;
+				mazemap[i][j] = 2;
+			std::cout << mazemap[i][j] << " ";
 		}
+		std::cout << std::endl;
 	}
-	set[0].union_set(set[1]);
-	for (int i = 0; i < maze_size*maze_size; i++)
-		set[i].print();
+	//set[0].union_set(set[1]);
+	//for (int i = 0; i < maze_size*maze_size; i++)
+	//	set[i].print();
 	
 	char c;
 	while (1) {
@@ -70,30 +73,59 @@ int main(int argc, char **argv)
 		}
 		else if (c == 32) {
 			cout << "SPACE" << endl;
-			maze_builder(image, set, maze, mazeidx, pixel_ratio);
+			maze_builder(image, set, maze, mazeidx, mazemap, pixel_ratio);
 		}
 	}
+
 
 	delete maze;
 	delete set;
 	for (int i = 0; i < maze_size; i++)
 		delete mazeidx[i];
 	delete mazeidx;
+	for (int i = 0; i < 2*maze_size+1; i++)
+		delete mazemap[i];
+	delete mazemap;
 	return 0;
 }
 
 int random_n() { return rand() % (maze_size*maze_size); }
+int random_vec() { return rand() % 4; }
 
-void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int pixel_ratio) {
+void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio) {
 	int target;
+	int arr;
+	int vector;
+	int xtemp, ytemp;
 
-	/*while (set[0].size != maze_size*maze_size) {
+	while (set[0].size != maze_size*maze_size) {
+		target = random_n();
+		arr = random_vec();
+		switch (arr) {
+		case 0: vector = -maze_size; break;
+		case 1: vector = 1; break;
+		case 2: vector = -1; break;
+		case 3: vector = maze_size; break;
+		}
+		if (mazeidx[target] != mazeidx[vector]) {
+			set[target].union_set(set[target+vector]);
+			set[target].print();
+			xtemp = ((2 * (target / maze_size) + 1) + (2 * ((target + vector) / maze_size) + 1)) / 2;
+			ytemp = ((2 * (target % maze_size) + 1) + (2 * ((target + vector) % maze_size) + 1)) / 2;
+			mazemap[xtemp][ytemp] = 1;
+			mazeidx[vector] = mazeidx[target];
+			for (int i = 0; i < 2 * maze_size + 1; i++) {
+				for (int j = 0; j < 2 * maze_size + 1; j++) {
+					std::cout << mazemap[i][j] << " ";
+				}
+				std::cout << std::endl;
+			}
+		}
 
-	}*/
-	line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));
+	}
 
-	imshow("maze", image);
+	//line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));
 
-
+	//imshow("maze", image);
 }
 

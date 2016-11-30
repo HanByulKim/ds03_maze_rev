@@ -1,7 +1,7 @@
 #include "Set.h"
 
 void Set::add(int idx) {
-	Node* a = new Node(head, idx);
+	Node* a = new Node(head, idx, unioned);
 	tail->next = a;
 	tail = tail->next;
 	size++;
@@ -23,12 +23,13 @@ void Set::union_set(Set& unirand) {
 		itr = itr->next;
 		add(itr->n);
 	}
-	unirand.init();
+	unirand.init(head->next->n);
 }
 
 int Set::getsize() { return size; }
+int Set::unionedchk() { return unioned; }
 
-void Set::init() {
+void Set::init(int num) {
 	int d = size;
 	for (int i = 0; i < d; i++) {
 		delete tail;
@@ -42,4 +43,12 @@ void Set::init() {
 	head = NULL;
 	tail = NULL;
 	size = 0;
+}
+
+bool Set::search(int unirand) {
+
+}
+
+void Set::setunioned(int a) {
+	unioned = a;
 }
