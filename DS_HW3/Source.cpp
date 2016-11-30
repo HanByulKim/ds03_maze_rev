@@ -1,5 +1,6 @@
 #include <opencv2\opencv.hpp>
 #include "Set.h"
+#include "Stack.h"
 #include <iostream>
 
 #define WINDOW_SIZE 600
@@ -57,15 +58,16 @@ int main(int argc, char **argv)
 				mazemap[i][j] = 0;
 			else
 				mazemap[i][j] = 2;
-			std::cout << mazemap[i][j] << " ";
+			//std::cout << mazemap[i][j] << " ";
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 	//set[0].union_set(set[1]);
 	//for (int i = 0; i < maze_size*maze_size; i++)
 	//	set[i].print();
 	
 	char c;
+	int cnt = 0;
 	while (1) {
 		c = cvWaitKey(30);
 		if (c == 27) break;
@@ -74,7 +76,12 @@ int main(int argc, char **argv)
 		}
 		else if (c == 32) {
 			cout << "SPACE" << endl;
-			maze_builder(image, set, maze, mazeidx, mazemap, pixel_ratio);
+			if (cnt++ == 0) {
+				maze_builder(image, set, maze, mazeidx, mazemap, pixel_ratio);
+			}
+			else if (cnt++ == 1) {
+				DFS(image, set, maze, mazeidx, mazemap, pixel_ratio);
+			}
 		}
 	}
 
@@ -94,13 +101,21 @@ int random_n() { return rand() % (maze_size*maze_size); }
 int random_vec() { return rand() % 4; }
 
 void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio) {
-	int target;
+	int target=0;
 	int arr;
 	int vector;
 	int xtemp, ytemp;
 	bool condition;
+	int working = 0;
 
-	while (set[0].size != maze_size*maze_size) {
+	while (set[target].size != maze_size*maze_size) {
+		system("cls");
+		if (working == 0) std::cout << "working \ " << std::endl;
+		else if (working == 1) std::cout << "working | "<<std::endl;
+		else if (working == 2) std::cout << "working / "<<std::endl;
+		else { std::cout << "working - " << std::endl; }
+		working++;
+
 		target = random_n();
 		arr = random_vec();
 		int tempidx;
@@ -123,39 +138,59 @@ void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap
 			if (target % maze_size == 0) condition = false;
 			break;
 		}
-
+		//->y
 		if (condition && mazeidx[target / maze_size][target % maze_size] != mazeidx[(target + vector) / maze_size][(target + vector) % maze_size]) {
 			set[mazeidx[target / maze_size][target % maze_size]].union_set(set[mazeidx[(target + vector) / maze_size][(target + vector) % maze_size]]);
-			set[mazeidx[target / maze_size][target % maze_size]].print();
+			//set[mazeidx[target / maze_size][target % maze_size]].print();
 			xtemp = ((2 * (target / maze_size) + 1) + (2 * ((target + vector) / maze_size) + 1)) / 2;
 			ytemp = ((2 * (target % maze_size) + 1) + (2 * ((target + vector) % maze_size) + 1)) / 2;
 			mazemap[xtemp][ytemp] = 0;
 			tempidx = mazeidx[(target + vector) / maze_size][(target + vector) % maze_size];
-			std::cout << tempidx << " " << target+vector << std::endl;
+			//std::cout << tempidx << " " << target+vector << std::endl;
 			for (int i = 0; i < maze_size; i++) {
 				for (int j = 0; j < maze_size; j++) {
 					if (mazeidx[i][j] == tempidx)
 						mazeidx[i][j] = mazeidx[target / maze_size][target % maze_size];
-					std::cout << mazeidx[i][j] << " ";
+					//std::cout << mazeidx[i][j] << " ";
 				}
-				std::cout << std::endl;
+				//std::cout << std::endl;
 			}
-			for (int i = 0; i < 2 * maze_size + 1; i++) {
+			/*for (int i = 0; i < 2 * maze_size + 1; i++) {
 				for (int j = 0; j < 2 * maze_size + 1; j++) {
 					std::cout << mazemap[i][j] << " ";
 				}
 				std::cout << std::endl;
+			}*/
+		}
+	}
+	for (int i = 0; i < maze_size; i++) {
+		for (int j = 0; j < maze_size-1; j++) {
+			if (i == 0 || j == 0) {
+				if (mazemap[(2 * (i % maze_size) + 1)][(2 * (j % maze_size) + 2)] == 0) // vertical line
+					line(image, cv::Point(pixel_ratio*(j + 1), pixel_ratio*i), cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + pixel_ratio - 1), Scalar(255, 255, 255));
+				if (mazemap[(2 * (j % maze_size) + 2)][(2 * (i % maze_size) + 1)] == 0) // horizontal line
+					line(image, cv::Point(pixel_ratio*i, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
+			}
+			else {
+				if (mazemap[(2 * (i % maze_size) + 1)][(2 * (j % maze_size) + 2)] == 0) // vertical line
+					line(image, cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + 1), cv::Point(pixel_ratio*(j + 1), pixel_ratio*i + pixel_ratio - 1), Scalar(255, 255, 255));
+				if (mazemap[(2 * (j % maze_size) + 2)][(2 * (i % maze_size) + 1)] == 0) // horizontal line
+					line(image, cv::Point(pixel_ratio*i + 1, pixel_ratio*(j + 1)), cv::Point(pixel_ratio*i + pixel_ratio - 1, pixel_ratio*(j + 1)), Scalar(255, 255, 255));
 			}
 		}
 	}
+	
 
-	//line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));
-
-	//imshow("maze", image);
+	imshow("maze", image);
 }
 
-
 void DFS(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio) {
+	int vector_x[4] = {0,1,0,-1};
+	int vector_y[4] = {1,0,-1,0};
+	Stack route();
 
+	while (1) {
+
+	}
 }
 
