@@ -11,6 +11,7 @@ int maze_size;
 
 int random_n();
 void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio);
+void DFS(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio);
 
 int main(int argc, char **argv)
 {
@@ -151,5 +152,10 @@ void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap
 	//line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));
 
 	//imshow("maze", image);
+}
+
+
+void DFS(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap, int pixel_ratio) {
+
 }
 
