@@ -33,17 +33,28 @@ int main(int argc, char **argv)
 	}
 	imshow("maze", image);
 
-	Node* maze = new Node[maze_size*maze_size];
-	Set* set = new Set[maze_size*maze_size];
+	Node* maze = new Node[maze_size*maze_size]; // node
+	Set* set = new Set[maze_size*maze_size]; // set
 
-	int** mazeidx = new int*[maze_size];
+	int** mazeidx = new int*[maze_size]; // index arr
+	int** mazemap = new int*[2 * maze_size + 1]; // real maze
 	for (int i = 0; i < maze_size; i++)
 		mazeidx[i] = new int[maze_size];
+	for (int i = 0; i < 2*maze_size+1; i++)
+		mazemap[i] = new int[2*maze_size+1];
 	
 	for (int i = 0; i < maze_size; i++) {
 		for (int j = 0; j < maze_size; j++) {
 			mazeidx[i][j] = j + i*maze_size;
 			set[j + i*maze_size].add(j + i*maze_size);
+		}
+	}
+	for (int i = 0; i < 2 * maze_size + 1; i++) {
+		for (int j = 0; j < 2 * maze_size + 1; j++) {
+			if (i % 2 == 1 && j % 2 == 1)
+				mazemap[i][j] = 0;
+			else
+				mazemap[i][j] = 1;
 		}
 	}
 	set[0].union_set(set[1]);
