@@ -97,23 +97,48 @@ void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap
 	int arr;
 	int vector;
 	int xtemp, ytemp;
+	bool condition;
 
 	while (set[0].size != maze_size*maze_size) {
 		target = random_n();
 		arr = random_vec();
+		int tempidx;
+		condition = true;
 		switch (arr) {
-		case 0: vector = -maze_size; break;
-		case 1: vector = 1; break;
-		case 2: vector = -1; break;
-		case 3: vector = maze_size; break;
+		case 0: // top
+			vector = -maze_size;
+			if (target - maze_size < 0) condition = false;
+			break;
+		case 1: // right
+			vector = 1;
+			if (target % maze_size == maze_size-1) condition = false;
+			break;
+		case 2: // bottom
+			vector = maze_size;
+			if (target + maze_size >= maze_size*maze_size) condition = false;
+			break;
+		case 3: // left
+			vector = -1;
+			if (target % maze_size == 0) condition = false;
+			break;
 		}
-		if (mazeidx[target] != mazeidx[vector]) {
-			set[target].union_set(set[target+vector]);
-			set[target].print();
+
+		if (condition && mazeidx[target / maze_size][target % maze_size] != mazeidx[(target + vector) / maze_size][(target + vector) % maze_size]) {
+			set[mazeidx[target / maze_size][target % maze_size]].union_set(set[mazeidx[(target + vector) / maze_size][(target + vector) % maze_size]]);
+			set[mazeidx[target / maze_size][target % maze_size]].print();
 			xtemp = ((2 * (target / maze_size) + 1) + (2 * ((target + vector) / maze_size) + 1)) / 2;
 			ytemp = ((2 * (target % maze_size) + 1) + (2 * ((target + vector) % maze_size) + 1)) / 2;
-			mazemap[xtemp][ytemp] = 1;
-			mazeidx[vector] = mazeidx[target];
+			mazemap[xtemp][ytemp] = 0;
+			tempidx = mazeidx[(target + vector) / maze_size][(target + vector) % maze_size];
+			std::cout << tempidx << " " << target+vector << std::endl;
+			for (int i = 0; i < maze_size; i++) {
+				for (int j = 0; j < maze_size; j++) {
+					if (mazeidx[i][j] == tempidx)
+						mazeidx[i][j] = mazeidx[target / maze_size][target % maze_size];
+					std::cout << mazeidx[i][j] << " ";
+				}
+				std::cout << std::endl;
+			}
 			for (int i = 0; i < 2 * maze_size + 1; i++) {
 				for (int j = 0; j < 2 * maze_size + 1; j++) {
 					std::cout << mazemap[i][j] << " ";
@@ -121,7 +146,6 @@ void maze_builder(Mat& image, Set* set, Node* maze, int** mazeidx, int** mazemap
 				std::cout << std::endl;
 			}
 		}
-
 	}
 
 	//line(image, cv::Point(pixel_ratio, 0), cv::Point(pixel_ratio, pixel_ratio-1), Scalar(255, 255, 255));

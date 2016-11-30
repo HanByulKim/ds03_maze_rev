@@ -1,7 +1,7 @@
 #include "Set.h"
 
 void Set::add(int idx) {
-	Node* a = new Node(head, idx, unioned);
+	Node* a = new Node(head, idx);
 	tail->next = a;
 	tail = tail->next;
 	size++;
