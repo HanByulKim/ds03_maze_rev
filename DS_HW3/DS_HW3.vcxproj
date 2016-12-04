@@ -155,12 +155,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Queue.cpp" />
     <ClCompile Include="Set.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Stack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Prev.h" />
+    <ClInclude Include="Queue.h" />
     <ClInclude Include="Set.h" />
     <ClInclude Include="Stack.h" />
   </ItemGroup>

@@ -13,6 +13,8 @@ look for https://github.com/HanByulKim/ds03_maze_rev
 #include <opencv2\opencv.hpp>
 #include "Set.h"
 #include "Stack.h"
+#include "Prev.h"
+#include "Queue.h"
 #include <iostream>
 
 #define WINDOW_SIZE 600
@@ -21,6 +23,7 @@ using namespace std;
 using namespace cv;
 
 int maze_size;
+int scale_factor;
 
 int random_n();
 void maze_builder(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio);
@@ -30,14 +33,19 @@ void Random_Mouse(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 bool Random_Mouse(int** mazemap, Stack* route, int x, int y);
 void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio);
 bool Wall_Follower(int** mazemap, Stack* route, int x, int y, int dir_x, int dir_y);
+void BFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio);
+void BFS(int** mazemap, Queue* route, Prev** prev);
 
 int main(int argc, char **argv)
 {
-	cout << "Eneter the size of maze(n by n): ";
-	cin >> maze_size;
+	std::cout << " *********************************************\n 2016 Autumn DataStructure HW03 \n SNU Dept.of Electrical & Computer Engineering \n 2014 - 13261 \n Han - Byul Kim \n ********************************************* \n Rev.log. \n look for https://github.com/HanByulKim/ds03_maze_rev \n ********************************************* \n" << std::endl;
+
+	std::cout << "Eneter the size of maze(n by n): ";
+	std::cin >> maze_size;
 	int pixel_ratio = 600 / maze_size;
-	Mat WhiteImage(maze_size*pixel_ratio + 50, maze_size*pixel_ratio, CV_8UC3, Scalar(255, 255, 255));
+	Mat WhiteImage(maze_size*pixel_ratio + 150, maze_size*pixel_ratio, CV_8UC3, Scalar(255, 255, 255));
 	Mat image = WhiteImage.clone();	
+	scale_factor = 10 / maze_size;
 	
 	for (int i = 0; i < maze_size; i++) {
 		for (int j = 0; j < maze_size; j++) {			
@@ -50,6 +58,7 @@ int main(int argc, char **argv)
 			line(image, p3, p4, Scalar(0, 0, 0));
 		}		
 	}
+	cv::putText(image, "PUSH SPACE BUTTON BY 5TIMES!", cv::Point(10, maze_size*pixel_ratio + 40), 2, 1, Scalar(0, 0, 0));
 	imshow("maze", image);
 
 	Set* set = new Set[maze_size*maze_size]; // set
@@ -77,16 +86,24 @@ int main(int argc, char **argv)
 				mazemap[i][j] = 0;
 			else
 				mazemap[i][j] = 2;
-			//std::cout << mazemap[i][j] << " ";
 		}
-		//std::cout << std::endl;
 	}
-	//set[0].union_set(set[1]);
-	//for (int i = 0; i < maze_size*maze_size; i++)
-	//	set[i].print();
 	
 	char c;
 	int cnt = 0;
+	std::cout << "***********************" << std::endl;
+	std::cout << "SPACE 1번 : 미로생성" << std::endl;
+	std::cout << "SPACE 2번 : Shortest Path(DFS)" << std::endl;
+	std::cout << "SPACE 3번 : Random Mouse" << std::endl;
+	std::cout << "SPACE 4번 : Wall Follower" << std::endl;
+	std::cout << "SPACE 5번 : BFS" << std::endl;
+	std::cout << "***********************" << std::endl;
+	std::cout << " ] 버튼을 누르면 다음 알고리즘이 스킵됩니다." << std::endl;
+	std::cout << "Random Mouse 알고리즘을 생략하시고 테스트할 때 좋습니다." << std::endl;
+	std::cout << "***********************" << std::endl;
+	std::cout << "미로생성, Shortest Path는 큰 미로에서도 가능하나 나머지 알고리즘은 숫자가 너무 크면 렉이걸립니다." << std::endl;
+	std::cout << "***********************" << std::endl;
+
 	while (1) {
 		c = cvWaitKey(30);
 		if (c == 27) break;
@@ -108,11 +125,25 @@ int main(int argc, char **argv)
 				}
 			}
 			else if (cnt == 1) {
-				DFS(image, set, mazeidx, mazemap_randmouse, pixel_ratio);
-				Random_Mouse(image, set, mazeidx, mazemap_randmouse, pixel_ratio);
-				Wall_Follower(image, set, mazeidx, mazemap_randmouse, pixel_ratio);
-				cnt=4;
+				DFS(image, set, mazeidx, mazemap, pixel_ratio);
+				cnt++;
 			}
+			else if (cnt == 2) {
+				Random_Mouse(image, set, mazeidx, mazemap, pixel_ratio);
+				cnt++;
+			}
+			else if (cnt == 3) {
+				Wall_Follower(image, set, mazeidx, mazemap, pixel_ratio);
+				cnt++;
+			}
+			else if (cnt == 4) {
+				BFS(image, set, mazeidx, mazemap_randmouse, pixel_ratio);
+				cnt=11;
+			}
+		}
+		else if (cnt>=1 && c == 93) {
+			std::cout << "Skip Algorithm " << cnt << std::endl;
+			cnt++;
 		}
 	}
 	
@@ -237,9 +268,8 @@ void DFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 		line(image, cv::Point(y1*pixel_ratio / 2, x1*pixel_ratio / 2), cv::Point(y2*pixel_ratio / 2, x2*pixel_ratio / 2), Scalar(0, 0, 255));
 		imshow("maze", image);
 	}
-	cv::putText(image, "DFS", cv::Point(10, maze_size*pixel_ratio + 40), 2, 1, Scalar(0, 0, 255));
-	cv::putText(image, "Random Mouse", cv::Point(70, maze_size*pixel_ratio + 40), 2, 1, Scalar(0, 255, 0));
-	cv::putText(image, "Wall Follower", cv::Point(320, maze_size*pixel_ratio + 40), 2, 1, Scalar(255, 0, 0));
+	cv::putText(image, "DFS", cv::Point(10, maze_size*pixel_ratio + 90), 2, 1, Scalar(0, 0, 255));
+	imshow("maze", image);
 
 	delete route;
 }
@@ -285,9 +315,11 @@ void Random_Mouse(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 		route->pop();
 		x2 = route->topx();
 		y2 = route->topy();
-		line(image, cv::Point(y1*pixel_ratio / 2+5, x1*pixel_ratio / 2-5), cv::Point(y2*pixel_ratio / 2+5, x2*pixel_ratio / 2-5), Scalar(0, 255, 0));
+		line(image, cv::Point(y1*pixel_ratio / 2 + 5 * scale_factor, x1*pixel_ratio / 2 - 5 * scale_factor), cv::Point(y2*pixel_ratio / 2 + 5 * scale_factor, x2*pixel_ratio / 2 - 5 * scale_factor), Scalar(0, 255, 0));
 		imshow("maze", image);
 	}
+	cv::putText(image, "Random Mouse", cv::Point(75, maze_size*pixel_ratio + 90), 2, 1, Scalar(0, 255, 0));
+	imshow("maze", image);
 
 	delete route;
 }
@@ -338,9 +370,11 @@ void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel
 		route->pop();
 		x2 = route->topx();
 		y2 = route->topy();
-		line(image, cv::Point(y1*pixel_ratio / 2-5, x1*pixel_ratio / 2+5), cv::Point(y2*pixel_ratio / 2-5, x2*pixel_ratio / 2+5), Scalar(255, 0, 0));
+		line(image, cv::Point(y1*pixel_ratio / 2 - 5 * scale_factor, x1*pixel_ratio / 2 + 5 * scale_factor), cv::Point(y2*pixel_ratio / 2 - 5 * scale_factor, x2*pixel_ratio / 2 + 5 * scale_factor), Scalar(255, 0, 0));
 		imshow("maze", image);
 	}
+	cv::putText(image, "Wall Follower", cv::Point(335, maze_size*pixel_ratio + 90), 2, 1, Scalar(255, 0, 0));
+	imshow("maze", image);
 
 	delete route;
 }
@@ -388,5 +422,72 @@ bool Wall_Follower(int** mazemap, Stack* route, int x, int y, int dir_x, int dir
 		mazemap[x][y] = 0;
 	}
 	return pan;
+}
+
+void BFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
+	Queue* route = new Queue();
+	Prev** prev = new Prev*[2 * maze_size + 1];
+	for (int i = 0; i < 2 * maze_size + 1; i++)
+		prev[i] = new Prev[2 * maze_size + 1];
+
+	route->push(1, 1);
+	BFS(mazemap, route, prev);
+
+	delete route;
+
+	int x1, y1;
+	int x2=0, y2=0;
+	int size = route->sizeis();
+
+	std::cout << "----BFS previous coordinate map----" << std::endl;
+	for (int i = 0; i < 2 * maze_size + 1; i++) {
+		for (int j = 0; j < 2 * maze_size + 1; j++) {
+			std::cout << prev[i][j].getx() << "," << prev[i][j].gety() << " ";
+		}
+		std::cout << std::endl;
+	}
+	x1 = 2 * maze_size - 1;
+	y1 = 2 * maze_size - 1;
+	while (!(x2 == 1 && y2 == 1)) {
+		x2 = prev[x1][y1].getx();
+		y2 = prev[x1][y1].gety();
+		std::cout << x1 << "," << y1 << std::endl;
+		route->pop();
+		line(image, cv::Point(y1*pixel_ratio / 2 + 10 * scale_factor, x1*pixel_ratio / 2 - 10 * scale_factor), cv::Point(y2*pixel_ratio / 2 + 10 * scale_factor, x2*pixel_ratio / 2 - 10 * scale_factor), Scalar(230, 68, 253));
+		imshow("maze", image);
+		x1 = x2;
+		y1 = y2;
+	}
+	cv::putText(image, "BFS", cv::Point(10, maze_size*pixel_ratio + 140), 2, 1, Scalar(230, 68, 253));
+	imshow("maze", image);
+
+	for (int i = 0; i < 2 * maze_size + 1; i++)
+		delete prev[i];
+	delete[] prev;
+}
+
+void BFS(int** mazemap, Queue* route, Prev** prev) {
+	int x, y;
+	int vector_x[4] = { 0,1,0,-1 };
+	int vector_y[4] = { 1,0,-1,0 };
+	bool pan = false;
+	
+	while (!pan) {
+		x = route->frontx();
+		y = route->fronty();
+		route->pop();
+		if (x == 2 * maze_size - 1 && y == 2 * maze_size - 1) {
+			mazemap[x][y] = 1;
+			pan = true;
+		}
+
+		mazemap[x][y] = 1;
+		for (int i = 0; i < 4; i++) {
+			if (mazemap[x + vector_x[i]][y + vector_y[i]] == 0) {
+				route->push(x + vector_x[i], y + vector_y[i]);
+				prev[x + vector_x[i]][y + vector_y[i]].designate(x, y);
+			}
+		}
+	}
 }
 

@@ -1,16 +1,15 @@
 #pragma once
-#include <iostream>
-class Stack {
+class Queue {
 public:
-	Stack();
-	~Stack();
+	Queue();
+	~Queue();
 
 	void array_doubling();
 	void push(int nx, int ny);
 	void pop();
 	int sizeis();
-	int topx();
-	int topy();
+	int frontx();
+	int fronty();
 
 private:
 	int* arr_x;
@@ -18,4 +17,5 @@ private:
 	int size = 0;
 	int top = -1;
 	int idx;
+	int front = 0;
 };
