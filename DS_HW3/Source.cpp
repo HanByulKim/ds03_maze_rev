@@ -270,9 +270,11 @@ bool DFS(int** mazemap, Stack* route, int x, int y) {
 
 void Random_Mouse(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 	Stack* route = new Stack();
+	std::cout << "----Random Mouse coordinate list----" << std::endl;
 
 	route->push(1, 1);
 	Random_Mouse(mazemap, route, 1, 1);
+	std::cout << std::endl;
 
 	int x1, y1;
 	int x2, y2;
@@ -294,6 +296,7 @@ bool Random_Mouse(int** mazemap, Stack* route, int x, int y) {
 	int vector_x[4] = { 0,1,0,-1 };
 	int vector_y[4] = { 1,0,-1,0 };
 	bool pan = false;
+	std::cout << "(" << x << "," << y << ")";
 
 	if (x == 2 * maze_size - 1 && y == 2 * maze_size - 1) {
 		mazemap[x][y] = 1;
@@ -318,11 +321,13 @@ bool Random_Mouse(int** mazemap, Stack* route, int x, int y) {
 
 void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 	Stack* route = new Stack();
+	std::cout << "----Wall Follower coordinate list----" << std::endl;
 
 	route->push(1, 1);
 	int dir_x = 1;
 	int dir_y = 0;
 	Wall_Follower(mazemap, route, 1, 1, dir_x, dir_y);
+	std::cout << std::endl;
 
 	int x1, y1;
 	int x2, y2;
@@ -343,6 +348,7 @@ void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel
 bool Wall_Follower(int** mazemap, Stack* route, int x, int y, int dir_x, int dir_y) {
 	int vector_x[4];
 	int vector_y[4];
+	std::cout << "(" << x << "," << y << ")";
 
 	switch (dir_x) {
 	case 1://s
