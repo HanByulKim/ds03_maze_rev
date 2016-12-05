@@ -16,6 +16,8 @@ look for https://github.com/HanByulKim/ds03_maze_rev
 #include "Prev.h"
 #include "Queue.h"
 #include <iostream>
+#include <time.h>
+#include <Windows.h>
 
 #define WINDOW_SIZE 600
 
@@ -170,6 +172,7 @@ void maze_builder(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 	int xtemp, ytemp;
 	bool condition;
 	int working = 0;
+	DWORD dwStartTime = GetTickCount();
 
 	while (set[target].size != maze_size*maze_size) {
 
@@ -248,9 +251,12 @@ void maze_builder(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 	}
 
 	imshow("maze", image);
+	DWORD dwEndTime = GetTickCount();
+	cout << "mazebuildeing 수행시간 : " << ((dwEndTime - dwStartTime)/ (double)1000) << endl;
 }
 
 void DFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
+	DWORD dwStartTime = GetTickCount();
 	Stack* route = new Stack();
 
 	route->push(1, 1);
@@ -270,6 +276,8 @@ void DFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 	}
 	cv::putText(image, "DFS", cv::Point(10, maze_size*pixel_ratio + 90), 2, 1, Scalar(0, 0, 255));
 	imshow("maze", image);
+	DWORD dwEndTime = GetTickCount();
+	cout << "DFS 수행시간 : " << ((dwEndTime - dwStartTime)/ (double)1000) << endl;
 
 	delete route;
 }
@@ -299,6 +307,7 @@ bool DFS(int** mazemap, Stack* route, int x, int y) {
 }
 
 void Random_Mouse(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
+	DWORD dwStartTime = GetTickCount();
 	Stack* route = new Stack();
 	std::cout << "----Random Mouse coordinate list----" << std::endl;
 
@@ -320,6 +329,9 @@ void Random_Mouse(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_
 	}
 	cv::putText(image, "Random Mouse", cv::Point(75, maze_size*pixel_ratio + 90), 2, 1, Scalar(0, 255, 0));
 	imshow("maze", image);
+
+	DWORD dwEndTime = GetTickCount();
+	cout << "Randmouse 수행시간 : " << ((dwEndTime - dwStartTime)/ (double)1000) << endl;
 
 	delete route;
 }
@@ -352,6 +364,7 @@ bool Random_Mouse(int** mazemap, Stack* route, int x, int y) {
 }
 
 void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
+	DWORD dwStartTime = GetTickCount();
 	Stack* route = new Stack();
 	std::cout << "----Wall Follower coordinate list----" << std::endl;
 
@@ -375,6 +388,9 @@ void Wall_Follower(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel
 	}
 	cv::putText(image, "Wall Follower", cv::Point(335, maze_size*pixel_ratio + 90), 2, 1, Scalar(255, 0, 0));
 	imshow("maze", image);
+
+	DWORD dwEndTime = GetTickCount();
+	cout << "Wallf 수행시간 : " << ((dwEndTime - dwStartTime)/ (double)1000) << endl;
 
 	delete route;
 }
@@ -425,6 +441,7 @@ bool Wall_Follower(int** mazemap, Stack* route, int x, int y, int dir_x, int dir
 }
 
 void BFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
+	DWORD dwStartTime = GetTickCount();
 	Queue* route = new Queue();
 	Prev** prev = new Prev*[2 * maze_size + 1];
 	for (int i = 0; i < 2 * maze_size + 1; i++)
@@ -460,6 +477,9 @@ void BFS(Mat& image, Set* set, int** mazeidx, int** mazemap, int pixel_ratio) {
 	}
 	cv::putText(image, "BFS", cv::Point(10, maze_size*pixel_ratio + 140), 2, 1, Scalar(230, 68, 253));
 	imshow("maze", image);
+
+	DWORD dwEndTime = GetTickCount();
+	cout << "BFS 수행시간 : " << ((dwEndTime - dwStartTime)/ (double)1000) << endl;
 
 	for (int i = 0; i < 2 * maze_size + 1; i++)
 		delete prev[i];
